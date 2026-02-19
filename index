@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Protein Co. </title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <!-- Custom Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            red: '#D32F2F',
+                            darkRed: '#B71C1C',
+                            black: '#121212',
+                            charcoal: '#333333',
+                            gray: '#F5F5F5'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Roboto', 'sans-serif'],
+                        heading: ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #FAFAFA;
+            color: #121212;
+            overflow-x: hidden;
+        }
+        
+        h1, h2, h3, h4, h5, h6, .font-heading {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* Chart Container Styling - MANDATORY */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px; /* Constrained width for the doughnut chart */
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 350px;
+        }
+
+        /* Custom Utilities */
+        .text-shadow {
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .hero-bg {
+            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1546483875-ad9014c88eba?q=80&w=2882&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .btn-hover {
+            transition: all 0.3s ease;
+        }
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+        }
+        
+        .card-pop:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Toggle Switch Styles */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #D32F2F;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #D32F2F;
+        }
+
+        /* Hide scrollbar for clean horizontal scroll on mobile */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+
+    <!-- Placeholder Comments Required by Prompt -->
+    <!-- Chosen Palette: Primary Red (#D32F2F), Stark White, Matte Black, Charcoal Grey -->
+    <!-- Application Structure Plan: 
+         1. Sticky Navigation with LOGO (Typographic Stack).
+         2. Hero Section (Updated).
+         3. Interactive 'How It Works'.
+         4. Tabbed Menu Section.
+         5. 'Plan Explorer' Dashboard (Macro Viz).
+         6. Real Results (Testimonials).
+         7. Pricing Section - Interactive Matrix based on User CSV data.
+         8. Dietician Support.
+         9. Footer with Logo.
+    -->
+    <!-- Visualization & Content Choices:
+         1. Logo:
+            - Goal: Match branding PDF.
+            - Method: CSS Stacked Text.
+            - Justification: The PDF showed a stacked "THE PRO TEIN CO." typographic mark. Replicated using flex-col and tight leading.
+         2. Pricing Matrix:
+            - Goal: Clarity on complex pricing.
+            - Method: Interactive JS Switcher.
+         NO SVG graphics used (for charts/logos, using CSS/Canvas).
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- 1. Global Navigation Bar -->
+    <nav class="sticky top-0 z-50 bg-white shadow-md border-b border-gray-200">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <!-- Logo -->
+            <a href="#" class="flex items-center gap-3 group">
+                <!-- Stacked Typographic Logo Mark (Matches PDF) -->
+                <img src="path/to/your-logo.png" alt="The Protein Co Logo" class="h-12 w-auto object-contain">
+                
+                <div class="flex flex-col">
+                    <span class="text-xl font-heading font-black tracking-tighter text-brand-black leading-none">THE PROTEIN CO<span class="text-brand-red">.</span></span>
+                    <span class="text-[10px] tracking-widest uppercase font-bold text-gray-400 leading-none mt-0.5">Meal Subscription</span>
+                </div>
+            </a>
+
+            <!-- Desktop Links -->
+            <div class="hidden md:flex space-x-8 font-medium text-brand-charcoal items-center">
+                <a href="#how-it-works" class="hover:text-brand-red transition">How It Works</a>
+                <a href="#menu" class="hover:text-brand-red transition">The Menu</a>
+                <a href="#pricing" class="hover:text-brand-red transition">Pricing</a>
+                <a href="#dietician" class="hover:text-brand-red transition">Dietician Support</a>
+            </div>
+
+            <!-- CTA & Mobile Menu Button -->
+            <div class="flex items-center space-x-4">
+                <a href="#order" class="hidden md:inline-block bg-brand-red text-white px-6 py-2 rounded font-bold uppercase tracking-wide text-sm btn-hover shadow-md">
+                    Get Started
+                </a>
+                <button id="mobile-menu-btn" class="md:hidden text-3xl text-brand-black focus:outline-none">
+                    &#9776; <!-- Unicode Hamburger -->
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu (Hidden by default) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100 absolute w-full left-0 z-40 shadow-xl">
+            <div class="flex flex-col p-4 space-y-4 font-medium text-center">
+                <a href="#how-it-works" class="block py-2 text-brand-charcoal hover:bg-gray-50">How It Works</a>
+                <a href="#menu" class="block py-2 text-brand-charcoal hover:bg-gray-50">The Menu</a>
+                <a href="#pricing" class="block py-2 text-brand-charcoal hover:bg-gray-50">Pricing</a>
+                <a href="#dietician" class="block py-2 text-brand-charcoal hover:bg-gray-50">Support</a>
+                <a href="#order" class="block py-3 bg-brand-red text-white rounded font-bold">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 2. Hero Section -->
+    <header class="relative h-[85vh] flex items-center justify-center hero-bg text-white">
+        <div class="container mx-auto px-4 text-center md:text-left md:flex md:items-center">
+            <div class="md:w-2/3 lg:w-1/2 space-y-6 animate-fade-in-up">
+                <!-- REMOVED: New Summer Pricing Badge -->
+                
+                <h1 class="text-4xl md:text-6xl font-heading font-extrabold uppercase leading-tight text-shadow">
+                    India’s First Truly Personalised Protein Meal Subscription
+                </h1>
+                <p class="text-lg md:text-xl font-light text-gray-100 max-w-lg text-shadow">
+                    Custom macros. High protein. 1-to-1 Dietician support. Fuel your ambition with meals designed specifically for your body type.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 pt-4 justify-center md:justify-start">
+                    <a href="#pricing" class="bg-brand-red text-white px-8 py-4 rounded font-bold uppercase tracking-wider text-center btn-hover shadow-lg border-2 border-brand-red">
+                        View Plans
+                    </a>
+                    <a href="#dietician" class="border-2 border-white text-white px-8 py-4 rounded font-bold uppercase tracking-wider text-center hover:bg-white hover:text-brand-black transition">
+                        Talk to a Dietician
+                    </a>
+                </div>
+                <div class="pt-6 text-sm font-medium">
+                    📞 <a href="tel:9030042583" class="hover:underline">9030042583</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 3. How It Works -->
+    <section id="how-it-works" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-heading font-bold text-brand-black mb-4">The Science of Simplicity</h2>
+                <div class="w-24 h-1 bg-brand-red mx-auto"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Step 1 -->
+                <div class="text-center p-6 border border-gray-100 rounded-lg hover:shadow-xl transition group">
+                    <div class="text-5xl mb-6 text-brand-red transform group-hover:scale-110 transition duration-300">🩺</div>
+                    <h3 class="text-xl font-bold mb-3 font-heading">1. Consult</h3>
+                    <p class="text-gray-600 leading-relaxed">Connect with a certified dietician to analyze your BMI, activity levels, and preferences.</p>
+                </div>
+                <!-- Step 2 -->
+                <div class="text-center p-6 border border-gray-100 rounded-lg hover:shadow-xl transition group">
+                    <div class="text-5xl mb-6 text-brand-red transform group-hover:scale-110 transition duration-300">🧮</div>
+                    <h3 class="text-xl font-bold mb-3 font-heading">2. Calculate</h3>
+                    <p class="text-gray-600 leading-relaxed">We design a menu that hits your exact protein, carb, and fat requirements. Every gram counts.</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="text-center p-6 border border-gray-100 rounded-lg hover:shadow-xl transition group">
+                    <div class="text-5xl mb-6 text-brand-red transform group-hover:scale-110 transition duration-300">👨‍🍳</div>
+                    <h3 class="text-xl font-bold mb-3 font-heading">3. Craft</h3>
+                    <p class="text-gray-600 leading-relaxed">Chef-prepared meals using premium ingredients. High protein, zero preservatives, 100% flavor.</p>
+                </div>
+                <!-- Step 4 -->
+                <div class="text-center p-6 border border-gray-100 rounded-lg hover:shadow-xl transition group">
+                    <div class="text-5xl mb-6 text-brand-red transform group-hover:scale-110 transition duration-300">🚚</div>
+                    <h3 class="text-xl font-bold mb-3 font-heading">4. Fuel</h3>
+                    <p class="text-gray-600 leading-relaxed">Daily delivery of fresh meals. Heat, eat, and crush your goals.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. USP Section -->
+    <section class="py-16 bg-brand-gray">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-heading font-bold text-center mb-12">Not Just "Diet Food." This is Fuel.</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <div class="bg-white p-6 rounded shadow-sm flex items-start">
+                    <span class="text-brand-red text-2xl mr-4">✓</span>
+                    <div>
+                        <h4 class="font-bold text-lg mb-1">Precision Nutrition</h4>
+                        <p class="text-sm text-gray-600">Generic diets fail. Our meals are calculated for <em>your</em> specific metabolic rate.</p>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded shadow-sm flex items-start">
+                    <span class="text-brand-red text-2xl mr-4">✓</span>
+                    <div>
+                        <h4 class="font-bold text-lg mb-1">Indian Palate, Global Macros</h4>
+                        <p class="text-sm text-gray-600">Flavor-packed Indian curries and bowls, re-engineered for high protein and lower carbs.</p>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded shadow-sm flex items-start">
+                    <span class="text-brand-red text-2xl mr-4">✓</span>
+                    <div>
+                        <h4 class="font-bold text-lg mb-1">Gym-Floor Ready</h4>
+                        <p class="text-sm text-gray-600">Whether you are cutting or bulking, our meals support muscle recovery.</p>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded shadow-sm flex items-start">
+                    <span class="text-brand-red text-2xl mr-4">✓</span>
+                    <div>
+                        <h4 class="font-bold text-lg mb-1">Zero Crash Dieting</h4>
+                        <p class="text-sm text-gray-600">Sustainable weight management. Eat fulfilling portions while still hitting your goals.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. Our Menu (Interactive Tabs) -->
+    <section id="menu" class="py-20 bg-brand-black text-white relative">
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-heading font-bold mb-4">Chef Curated. Science Approved.</h2>
+                <p class="text-gray-400">Explore our protein-forward menu options.</p>
+            </div>
+
+            <!-- Tab Controls -->
+            <div class="flex justify-center mb-12">
+                <div class="bg-brand-charcoal p-1 rounded-full inline-flex">
+                    <button onclick="switchMenu('veg')" id="tab-veg" class="px-8 py-3 rounded-full font-bold transition-all bg-brand-red text-white shadow-lg">Vegetarian</button>
+                    <button onclick="switchMenu('nonveg')" id="tab-nonveg" class="px-8 py-3 rounded-full font-bold transition-all text-gray-400 hover:text-white">Non-Vegetarian</button>
+                </div>
+            </div>
+
+            <!-- Menu Content Area -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+                <!-- Text Content -->
+                <div id="menu-content" class="order-2 lg:order-1 space-y-8 animate-fade-in">
+                    <!-- Injected via JS -->
+                </div>
+
+                <!-- Visual Content (Simulated Image Area) -->
+                <div class="order-1 lg:order-2 h-80 md:h-96 rounded-2xl overflow-hidden shadow-2xl border-4 border-brand-charcoal relative">
+                     <div id="menu-image-bg" class="absolute inset-0 bg-cover bg-center transition-all duration-500" style="background-image: url('https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=2940&auto=format&fit=crop');"></div>
+                     <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
+                     <div class="absolute bottom-6 left-6">
+                        <span id="menu-tag" class="bg-brand-red text-white text-xs font-bold px-3 py-1 rounded uppercase tracking-wider mb-2 inline-block">Plant-Based Power</span>
+                        <h3 id="menu-image-title" class="text-2xl font-bold font-heading">Vegetarian Excellence</h3>
+                     </div>
+                </div>
+            </div>
+            
+            <p class="text-center text-gray-500 text-sm mt-12 italic">"Menu rotates weekly to ensure you never get bored."</p>
+        </div>
+    </section>
+
+    <!-- 6. Personalised Plans & Macro Viz -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-heading font-bold mb-4">Macro Breakdown</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">See the scientific difference between our plan types.</p>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-8 max-w-6xl mx-auto items-center">
+                <!-- Text / Selector -->
+                <div class="lg:w-1/2 flex flex-col gap-4 w-full">
+                    <!-- Fat Loss -->
+                    <div onclick="selectPlan('fatloss')" id="card-fatloss" class="cursor-pointer border-2 border-brand-red bg-red-50 p-6 rounded-xl transition hover:shadow-lg relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-xl font-heading font-bold text-brand-black">Fat Loss (The Cut)</h3>
+                                <span class="text-2xl">🔥</span>
+                            </div>
+                            <p class="text-sm text-gray-600">Goal: Shed fat, retain muscle.</p>
+                        </div>
+                    </div>
+                    <!-- Muscle Gain -->
+                    <div onclick="selectPlan('musclegain')" id="card-musclegain" class="cursor-pointer border-2 border-transparent hover:border-brand-red bg-white shadow-md p-6 rounded-xl transition hover:shadow-lg relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-xl font-heading font-bold text-brand-black">Muscle Gain (The Bulk)</h3>
+                                <span class="text-2xl">💪</span>
+                            </div>
+                            <p class="text-sm text-gray-600">Goal: Hypertrophy & Strength.</p>
+                        </div>
+                    </div>
+                    <!-- Maintenance -->
+                    <div onclick="selectPlan('maintenance')" id="card-maintenance" class="cursor-pointer border-2 border-transparent hover:border-brand-red bg-white shadow-md p-6 rounded-xl transition hover:shadow-lg relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-xl font-heading font-bold text-brand-black">Maintenance (Lifestyle)</h3>
+                                <span class="text-2xl">⚖️</span>
+                            </div>
+                            <p class="text-sm text-gray-600">Goal: Performance & Vitality.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Visualization Panel -->
+                <div class="lg:w-1/2 bg-gray-50 rounded-xl p-8 flex flex-col items-center justify-center border border-gray-100 w-full">
+                    <h3 id="chart-title" class="text-lg font-heading font-bold mb-6 text-center text-brand-charcoal">Macro Breakdown: Fat Loss</h3>
+                    <!-- Chart Container -->
+                    <div class="chart-container">
+                        <canvas id="macroChart"></canvas>
+                    </div>
+                    <div id="plan-description" class="mt-6 text-center text-sm text-gray-500">
+                        Method: Caloric deficit, high protein, high fiber.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. Real Results (Testimonials) - Moved from JS error -->
+    <section class="py-20 bg-brand-gray border-t border-gray-200">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl font-heading font-bold mb-12">
+            Real Results. Real Clients.
+            </h2>
+
+            <div class="grid md:grid-cols-3 gap-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <p class="text-sm italic text-gray-600">"Lost 6kg in 8 weeks without starving."</p>
+                <p class="font-bold mt-4 text-brand-red">– Rohit, Hyderabad</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <p class="text-sm italic text-gray-600">"Finally hit my protein target daily."</p>
+                <p class="font-bold mt-4 text-brand-red">– Sneha, IT Professional</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <p class="text-sm italic text-gray-600">"Muscle recovery improved massively."</p>
+                <p class="font-bold mt-4 text-brand-red">– Arjun, Fitness Coach</p>
+            </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. Pricing Section (Calculated from User Data) -->
+    <section id="pricing" class="py-20 bg-white border-t border-gray-200">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-heading font-bold text-brand-black mb-4">Transparent Pricing</h2>
+                <p class="text-gray-600">Flexible monthly subscriptions tailored to your hunger.</p>
+            </div>
+
+            <!-- Controls -->
+            <div class="max-w-2xl mx-auto bg-gray-50 p-4 rounded-xl shadow-sm mb-12 flex flex-col md:flex-row items-center justify-between gap-6">
+                <!-- Diet Type Switch -->
+                <div class="flex items-center space-x-4">
+                    <span class="font-bold text-gray-500" id="label-veg">Vegetarian</span>
+                    <label for="pricing-diet-toggle" class="flex items-center cursor-pointer relative">
+                        <input type="checkbox" id="pricing-diet-toggle" class="sr-only" onchange="updatePricingUI()">
+                        <div class="w-14 h-8 bg-gray-300 rounded-full shadow-inner transition-colors duration-300" id="diet-toggle-bg"></div>
+                        <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full shadow transition-transform duration-300" id="diet-toggle-dot"></div>
+                    </label>
+                    <span class="font-bold text-brand-black" id="label-nonveg">Non-Veg</span>
+                </div>
+
+                <!-- Meals Per Day Buttons -->
+                <div class="flex items-center space-x-2 bg-white p-1 rounded-lg border border-gray-200">
+                    <button onclick="setMeals(1)" id="btn-m1" class="px-6 py-2 rounded-md text-sm font-bold bg-brand-black text-white shadow-sm transition-all">1 Meal</button>
+                    <button onclick="setMeals(2)" id="btn-m2" class="px-6 py-2 rounded-md text-sm font-bold text-gray-500 hover:text-brand-black transition-all">2 Meals</button>
+                    <button onclick="setMeals(3)" id="btn-m3" class="px-6 py-2 rounded-md text-sm font-bold text-gray-500 hover:text-brand-black transition-all">3 Meals</button>
+                </div>
+            </div>
+
+            <!-- Pricing Cards (Generated based on selection) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                
+                <!-- Card 1: LEAN -->
+                <div class="bg-white rounded-2xl p-8 border border-gray-200 card-pop flex flex-col h-full relative">
+                    <div class="mb-4">
+                        <h3 class="text-xl font-heading font-bold text-gray-800">LEAN</h3>
+                        <p class="text-gray-500 text-sm">Standard Protein</p>
+                    </div>
+                    <div class="mb-6">
+                        <span class="text-4xl font-bold text-brand-black" id="price-lean">₹5,699</span>
+                        <span class="text-gray-400 text-sm">/mo</span>
+                    </div>
+                    <ul class="space-y-3 mb-8 flex-1">
+                        <li class="flex items-center text-sm text-gray-600"><span class="text-green-500 mr-2">✓</span> Standard Protein Portions</li>
+                        <li class="flex items-center text-sm text-gray-600"><span class="text-green-500 mr-2">✓</span> Balanced Carbs</li>
+                        <li class="flex items-center text-sm text-gray-600"><span class="text-green-500 mr-2">✓</span> No Extra Protein Add-on</li>
+                    </ul>
+                    <a href="#order" class="block w-full py-3 border-2 border-brand-black text-brand-black font-bold text-center rounded-lg hover:bg-brand-black hover:text-white transition">Select Plan</a>
+                </div>
+
+                <!-- Card 2: FIT (Most Popular) -->
+                <div class="bg-brand-black rounded-2xl p-8 border-2 border-brand-red card-pop flex flex-col h-full relative transform md:-translate-y-4 shadow-xl">
+                    <div class="absolute top-0 right-0 bg-brand-red text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">MOST POPULAR</div>
+                    <div class="mb-4">
+                        <h3 class="text-xl font-heading font-bold text-white">FIT</h3>
+                        <p class="text-gray-400 text-sm">+30g Extra Protein</p>
+                    </div>
+                    <div class="mb-6">
+                        <span class="text-5xl font-bold text-brand-red" id="price-fit">₹6,099</span>
+                        <span class="text-gray-400 text-sm">/mo</span>
+                    </div>
+                    <ul class="space-y-3 mb-8 flex-1">
+                        <li class="flex items-center text-sm text-gray-300"><span class="text-brand-red mr-2">✓</span> <strong>+30g Protein / Day</strong></li>
+                        <li class="flex items-center text-sm text-gray-300"><span class="text-brand-red mr-2">✓</span> Optimal for Toning</li>
+                        <li class="flex items-center text-sm text-gray-300"><span class="text-brand-red mr-2">✓</span> Free Dietician Consult</li>
+                    </ul>
+                    <a href="#order" class="block w-full py-3 bg-brand-red text-white font-bold text-center rounded-lg hover:bg-red-700 transition">Select Plan</a>
+                </div>
+
+                <!-- Card 3: MUSCLE PRO -->
+                <div class="bg-white rounded-2xl p-8 border border-gray-200 card-pop flex flex-col h-full relative">
+                    <div class="mb-4">
+                        <h3 class="text-xl font-heading font-bold text-gray-800">MUSCLE PRO</h3>
+                        <p class="text-gray-500 text-sm">+60g Extra Protein</p>
+                    </div>
+                    <div class="mb-6">
+                        <span class="text-4xl font-bold text-brand-black" id="price-muscle">₹6,499</span>
+                        <span class="text-gray-400 text-sm">/mo</span>
+                    </div>
+                    <ul class="space-y-3 mb-8 flex-1">
+                        <li class="flex items-center text-sm text-gray-600"><span class="text-green-500 mr-2">✓</span> <strong>+60g Protein / Day</strong></li>
+                        <li class="flex items-center text-sm text-gray-600"><span class="text-green-500 mr-2">✓</span> Maximum Recovery</li>
+                        <li class="flex items-center text-sm text-gray-600"><span class="text-green-500 mr-2">✓</span> Priority Delivery</li>
+                    </ul>
+                    <a href="#order" class="block w-full py-3 border-2 border-brand-black text-brand-black font-bold text-center rounded-lg hover:bg-brand-black hover:text-white transition">Select Plan</a>
+                </div>
+
+            </div>
+            <p class="text-center text-gray-500 text-xs mt-8">* Prices are per month (30 days). Add-on costs for protein included in final price shown.</p>
+        </div>
+    </section>
+
+    <!-- 9. Dietician Support -->
+    <section id="dietician" class="py-20 bg-brand-gray border-t border-gray-200">
+        <div class="container mx-auto px-4 flex flex-col md:flex-row items-center gap-12">
+            <div class="md:w-1/2 relative">
+                <!-- Abstract placeholder representation of dietician interaction -->
+                <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md mx-auto relative z-10 border border-gray-100">
+                    <div class="flex items-center space-x-4 mb-6">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-3xl shadow-inner">👩‍⚕️</div>
+                        <div>
+                            <div class="font-bold text-lg">Your Dietician</div>
+                            <div class="text-green-500 text-sm flex items-center">● Online Now</div>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 p-3 rounded-lg rounded-tl-none text-sm text-gray-700 shadow-sm">Hi! I noticed your protein intake dropped slightly yesterday. Let's add an extra egg white to your breakfast.</div>
+                        <div class="bg-brand-red text-white p-3 rounded-lg rounded-tr-none text-sm ml-auto w-4/5 text-right shadow-md">Got it! Thanks for the tip.</div>
+                        <div class="bg-gray-50 p-3 rounded-lg rounded-tl-none text-sm text-gray-700 w-3/4 shadow-sm">Great. Also, your weight check-in is due tomorrow! 📉</div>
+                    </div>
+                </div>
+                <!-- Decorative element behind -->
+                <div class="absolute top-4 -right-4 w-full h-full bg-brand-red/10 rounded-2xl -z-0 transform rotate-3"></div>
+            </div>
+            
+            <div class="md:w-1/2 space-y-6">
+                <h2 class="text-3xl md:text-4xl font-heading font-bold text-brand-black">You Don't Have To Do It Alone.</h2>
+                <p class="text-lg text-gray-600 font-light">Nutrition is 70% of your result. At The Protein Co., you get a dedicated accountability partner.</p>
+                
+                <ul class="space-y-4 mt-4">
+                    <li class="flex items-start">
+                        <span class="text-brand-red font-bold mr-3">01.</span>
+                        <div>
+                            <strong class="text-brand-black">1-on-1 Consultation:</strong>
+                            <p class="text-sm text-gray-600">We understand your history and lifestyle.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-brand-red font-bold mr-3">02.</span>
+                        <div>
+                            <strong class="text-brand-black">Progress Tracking:</strong>
+                            <p class="text-sm text-gray-600">Weekly weigh-ins and measurement checks.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-brand-red font-bold mr-3">03.</span>
+                        <div>
+                            <strong class="text-brand-black">Dynamic Adjustments:</strong>
+                            <p class="text-sm text-gray-600">Hit a plateau? We tweak your macros immediately.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 10. Conversion Section -->
+    <section id="order" class="py-24 bg-brand-red text-white text-center">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl md:text-6xl font-heading font-black italic mb-4 tracking-tighter">EAT CLEAN. TRAIN HARD. REPEAT.</h2>
+            <p class="text-xl mb-8 font-light text-red-100">Slots are filling up for this month’s intake. Secure your nutrition plan today.</p>
+            <div class="flex flex-col md:flex-row justify-center items-center gap-6">
+                <button onclick="alert('Redirecting to Payment Gateway...')" class="bg-brand-black text-white px-10 py-4 rounded font-bold text-lg uppercase tracking-widest hover:bg-gray-900 transition shadow-2xl transform hover:scale-105">
+                    Order Now
+                </button>
+                <div class="text-lg font-bold flex items-center">
+                    <span class="mr-2 text-2xl">📱</span> Call/WhatsApp: 9030042583
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 11. Footer -->
+    <footer class="bg-brand-black text-white py-12 border-t border-gray-800">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <!-- Brand -->
+                <div class="space-y-4">
+                    <a href="#" class="flex items-center gap-3 group">
+                        <!-- Stacked Typographic Logo Mark (Footer) -->
+                        <img src="path/to/your-logo.png" alt="The Protein Co Logo" class="h-12 w-auto object-contain">
+                        <span class="text-xl font-heading font-black tracking-tighter text-white leading-none">THE PROTEIN CO<span class="text-brand-red">.</span></span>
+                    </a>
+                    <p class="text-gray-400 italic">Engineering Better Health.</p>
+                </div>
+                
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="text-lg font-bold mb-4 border-b border-gray-700 pb-2 inline-block">Quick Links</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#menu" onclick="switchMenu('veg')" class="hover:text-brand-red transition">Vegetarian Menu</a></li>
+                        <li><a href="#menu" onclick="switchMenu('nonveg')" class="hover:text-brand-red transition">Non-Veg Menu</a></li>
+                        <li><a href="#dietician" class="hover:text-brand-red transition">Consultation</a></li>
+                        <li><a href="#pricing" class="hover:text-brand-red transition">Pricing</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact -->
+                <div>
+                    <h4 class="text-lg font-bold mb-4 border-b border-gray-700 pb-2 inline-block">Contact</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>📍 Hyderabad, India</li>
+                        <li>📞 9030042583</li>
+                        <li>📧 support@theprotein.co</li>
+                        <li class="pt-4 flex space-x-4 text-xl">
+                            <span class="cursor-pointer hover:text-brand-red">📷</span>
+                            <span class="cursor-pointer hover:text-brand-red">📘</span>
+                            <span class="cursor-pointer hover:text-brand-red">🐦</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-12 pt-8 border-t border-gray-800 text-center text-gray-600 text-sm">
+                © 2024 The Protein Co. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // --- Data Models ---
+        const menuData = {
+            veg: {
+                title: "Plant-Based Power",
+                image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=2940&auto=format&fit=crop",
+                heading: "Vegetarian Excellence",
+                items: [
+                    { type: "Breakfast", desc: "High-Protein Moong Dal Chilla with Tofu Scramble.", icon: "🍳" },
+                    { type: "Lunch", desc: "Paneer Tikka Quinoa Bowl with Sautéed Greens.", sub: "(Balanced carbs, High Protein)", icon: "🥗" },
+                    { type: "Dinner", desc: "Low-carb Soya Chunk Curry with Cauliflower Rice.", icon: "🍲" }
+                ]
+            },
+            nonveg: {
+                title: "Lean Muscle Fuel",
+                image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=2680&auto=format&fit=crop",
+                heading: "Non-Veg Performance",
+                items: [
+                    { type: "Breakfast", desc: "Egg White Frittata with Chicken Sausages & Multigrain Toast.", icon: "🥚" },
+                    { type: "Lunch", desc: "Grilled Chicken Breast in Makhani Gravy with Brown Rice & Fiber Salad.", icon: "🍗" },
+                    { type: "Dinner", desc: "Lemon Garlic Fish with Steamed Broccoli & Zucchini Noodles.", icon: "🐟" }
+                ]
+            }
+        };
+
+        const planData = {
+            fatloss: {
+                title: "Fat Loss (The Cut)",
+                desc: "Method: Caloric deficit, high protein, high fiber.",
+                macros: [50, 20, 30], // Protein, Carbs, Fats
+                colors: ['#D32F2F', '#E0E0E0', '#424242']
+            },
+            musclegain: {
+                title: "Muscle Gain (The Bulk)",
+                desc: "Method: Caloric surplus, complex carbs, maximum protein.",
+                macros: [35, 45, 20],
+                colors: ['#D32F2F', '#E0E0E0', '#424242']
+            },
+            maintenance: {
+                title: "Maintenance (Lifestyle)",
+                desc: "Method: Balanced macros for sustained energy.",
+                macros: [30, 40, 30],
+                colors: ['#D32F2F', '#E0E0E0', '#424242']
+            }
+        };
+
+        // Pricing Matrix derived from CSV Data
+        const pricingData = {
+            veg: {
+                1: { lean: "5,699", fit: "6,099", muscle: "6,499" },
+                2: { lean: "9,499", fit: "10,199", muscle: "10,899" },
+                3: { lean: "13,999", fit: "14,999", muscle: "15,999" }
+            },
+            nonveg: {
+                1: { lean: "6,499", fit: "7,099", muscle: "7,699" },
+                2: { lean: "10,749", fit: "11,749", muscle: "12,949" },
+                3: { lean: "15,999", fit: "17,199", muscle: "18,999" }
+            }
+        };
+
+        // --- State Management ---
+        let currentChart = null;
+        let selectedMeals = 1; // Default
+        let isNonVeg = false; // Default
+
+        // --- Core Interactions ---
+
+        // 1. Mobile Menu Toggle
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+
+        // 2. Menu Switching Logic
+        function switchMenu(type) {
+            // Update Tab Styles
+            const btnVeg = document.getElementById('tab-veg');
+            const btnNonVeg = document.getElementById('tab-nonveg');
+            
+            if (type === 'veg') {
+                btnVeg.className = "px-8 py-3 rounded-full font-bold transition-all bg-brand-red text-white shadow-lg";
+                btnNonVeg.className = "px-8 py-3 rounded-full font-bold transition-all text-gray-400 hover:text-white";
+            } else {
+                btnVeg.className = "px-8 py-3 rounded-full font-bold transition-all text-gray-400 hover:text-white";
+                btnNonVeg.className = "px-8 py-3 rounded-full font-bold transition-all bg-brand-red text-white shadow-lg";
+            }
+
+            // Update Content
+            const contentContainer = document.getElementById('menu-content');
+            const data = menuData[type];
+            let html = '';
+            data.items.forEach(item => {
+                html += `
+                    <div class="flex items-start p-4 bg-gray-900 rounded-lg border border-gray-800">
+                        <div class="text-3xl mr-4 bg-gray-800 p-2 rounded-lg">${item.icon}</div>
+                        <div>
+                            <h4 class="text-brand-red font-bold uppercase tracking-wide text-xs mb-1">${item.type}</h4>
+                            <p class="text-white text-lg font-medium">${item.desc}</p>
+                            ${item.sub ? `<p class="text-gray-500 text-sm mt-1">${item.sub}</p>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            contentContainer.innerHTML = html;
+            document.getElementById('menu-tag').innerText = data.title;
+            document.getElementById('menu-image-title').innerText = data.heading;
+            document.getElementById('menu-image-bg').style.backgroundImage = `url('${data.image}')`;
+        }
+
+        // 3. Plan Selection & Chart Logic
+        function initChart() {
+            const ctx = document.getElementById('macroChart').getContext('2d');
+            currentChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Protein', 'Carbs', 'Fats'],
+                    datasets: [{
+                        data: planData.fatloss.macros,
+                        backgroundColor: planData.fatloss.colors,
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { usePointStyle: true, font: { family: 'Montserrat' } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ' + context.label + ': ' + context.raw + '%';
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%',
+                }
+            });
+        }
+
+        function selectPlan(planType) {
+            const data = planData[planType];
+            currentChart.data.datasets[0].data = data.macros;
+            currentChart.update();
+            document.getElementById('chart-title').innerText = `Macro Breakdown: ${data.title.split('(')[0].trim()}`;
+            document.getElementById('plan-description').innerHTML = `<strong>${data.title}</strong><br>${data.desc}`;
+
+            ['fatloss', 'musclegain', 'maintenance'].forEach(p => {
+                const card = document.getElementById(`card-${p}`);
+                if (p === planType) {
+                    card.classList.remove('border-transparent', 'bg-white');
+                    card.classList.add('border-brand-red', 'bg-red-50');
+                } else {
+                    card.classList.add('border-transparent', 'bg-white');
+                    card.classList.remove('border-brand-red', 'bg-red-50');
+                }
+            });
+        }
+
+        // 4. Pricing Interaction Logic
+        function setMeals(count) {
+            selectedMeals = count;
+            // Update Buttons
+            [1, 2, 3].forEach(n => {
+                const btn = document.getElementById(`btn-m${n}`);
+                if (n === count) {
+                    btn.className = "px-6 py-2 rounded-md text-sm font-bold bg-brand-black text-white shadow-sm transition-all";
+                } else {
+                    btn.className = "px-6 py-2 rounded-md text-sm font-bold text-gray-500 hover:text-brand-black transition-all";
+                }
+            });
+            renderPrices();
+        }
+
+        function updatePricingUI() {
+            const toggle = document.getElementById('pricing-diet-toggle');
+            isNonVeg = toggle.checked;
+
+            const bg = document.getElementById('diet-toggle-bg');
+            const dot = document.getElementById('diet-toggle-dot');
+            const vegLabel = document.getElementById('label-veg');
+            const nonVegLabel = document.getElementById('label-nonveg');
+
+            if (isNonVeg) {
+                // Styles for Non-Veg
+                bg.classList.replace('bg-gray-300', 'bg-brand-red');
+                dot.style.transform = 'translateX(100%)';
+                vegLabel.classList.replace('text-brand-black', 'text-gray-500');
+                nonVegLabel.classList.replace('text-gray-500', 'text-brand-black');
+            } else {
+                // Styles for Veg
+                bg.classList.replace('bg-brand-red', 'bg-gray-300');
+                dot.style.transform = 'translateX(0)';
+                vegLabel.classList.replace('text-gray-500', 'text-brand-black');
+                nonVegLabel.classList.replace('text-brand-black', 'text-gray-500');
+            }
+
+            renderPrices();
+        }
+
+        function renderPrices() {
+            const dietKey = isNonVeg ? 'nonveg' : 'veg';
+            const prices = pricingData[dietKey][selectedMeals];
+            
+            // Animate Price Change
+            animateValue("price-lean", prices.lean);
+            animateValue("price-fit", prices.fit);
+            animateValue("price-muscle", prices.muscle);
+        }
+
+        function animateValue(id, value) {
+            const obj = document.getElementById(id);
+            obj.style.opacity = 0;
+            setTimeout(() => {
+                obj.innerText = "₹" + value;
+                obj.style.opacity = 1;
+            }, 200);
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            switchMenu('veg'); 
+            initChart(); 
+            // Init Pricing
+            renderPrices();
+            
+            // Scroll Anchor Logic
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    
+                    // Fix for SyntaxError: '#' is not a valid selector
+                    if (targetId === '#') {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else {
+                        const targetElement = document.querySelector(targetId);
+                        if (targetElement) {
+                            targetElement.scrollIntoView({
+                                behavior: 'smooth'
+                            });
+                        }
+                    }
+                });
+            });
+        });
+
+    </script>
+</body>
+</html>
